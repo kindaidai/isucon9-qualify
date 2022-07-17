@@ -1,0 +1,37 @@
+services:
+  webapp:
+    stdin_open: true
+    tty: true
+    build:
+      dockerfile: ./ruby/Dockerfile
+      context: ./
+    ports:
+      - "3000:3000"
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: isucari
+      MYSQL_USER: isucari
+      MYSQL_PASSWORD: isucari
+    command: bundle exec puma -p 3000
+    depends_on:
+      - mysql
+    volumes:
+      - ./ruby:/webapp/ruby
+      - ./sql:/webapp/sql
+  mysql:
+    image: mysql:5.7
+    platform: linux/amd64
+    volumes:
+      - ./sql:/docker-entrypoint-initdb.d
+      - ./sql/mysql.cnf:/etc/mysql/conf.d/mysql.cnf
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: isucari
+      MYSQL_USER: isucari
+      MYSQL_PASSWORD: isucari
+      MYSQL_PORT: 3306
+    ports:
+      - "3306:3306"
+    expose:
+      - "3306"
